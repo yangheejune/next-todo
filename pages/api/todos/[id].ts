@@ -13,7 +13,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return res.end();
       }
       const todos = Data.todo.getList();
-      console.log("todos : " + todos);
+      console.log("todos : " + JSON.stringify(todos, null, 2));
       const changedTodos = todos.map((todo) => {
         if (todo.id === todoId) {
           return { ...todo, checked: !todo.checked };
@@ -23,6 +23,26 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       Data.todo.write(changedTodos);
       res.statusCode = 200;
       return res.end();
+    } catch (e) {
+      console.log(e);
+      res.statusCode = 500;
+      res.send(e);
+    }
+  }
+  if (req.method === "DELETE") {
+    try {
+      const todoId = Number(req.query.id);
+      const todo = Data.todo.exist({ id: todoId });
+      if (!todo) {
+        res.statusCode = 404;
+        res.end();
+      }
+
+      const todos = Data.todo.getList();
+      const filterdTodos = todos.filter((todo) => todo.id !== todoId);
+      Data.todo.write(filterdTodos);
+      res.statusCode = 200;
+      res.end();
     } catch (e) {
       console.log(e);
       res.statusCode = 500;
