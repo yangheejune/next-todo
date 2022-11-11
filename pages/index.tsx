@@ -1,7 +1,25 @@
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
+import TodoList from "../components/TodoList";
+import Axios from "axios";
+import { TodoType } from "../types/todo";
+import { getTodosAPI } from "../lib/api/todo";
 
-const index: NextPage = () => {
-  return <div>Hello Typescript</div>;
+interface IProps {
+  todos: TodoType[];
+}
+
+const app: NextPage<IProps> = ({ todos }) => {
+  return <TodoList todos={todos} />;
 };
 
-export default index;
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const { data } = await getTodosAPI();
+    return { props: { todos: data } };
+  } catch (e) {
+    console.log(e);
+    return { props: { todos: [] } };
+  }
+};
+
+export default app;
